@@ -68,8 +68,7 @@ class Track():
     """
     def status_in_queue(task):
         t = Task.objects.get(id=task)
-        task = {task:{'status' : 'In queue'}}
-        l.append(task)
+        l.append({task:{'status' : 'In queue'}})
 
 
     def status_run(task):
@@ -84,18 +83,16 @@ class Track():
     def status_completed(task, exec_time):
         now = datetime.datetime.now()
         t = Task.objects.get(id=task)
+        t.start_time = now.strftime("%H:%M:%S.%f")  # время завершения
+        t.exec_time = exec_time  # время выполнения
+        t.save(update_fields=['start_time', 'exec_time'])  # сохраняем в базу по завершению
         if len(l) > 1:
             for i in l:
                 if task in i.keys():
                    i[task]['status'] = 'Completed'
-                   t.start_time = now.strftime("%H:%M:%S.%f") # время завершения
-                   t.exec_time = exec_time # время выполнения
-                   t.save(update_fields=['start_time', 'exec_time']) # сохраняем в базу по завершению
+
         else:
             l[0].get(task).update({'status' : 'Completed'})
-            t.start_time = now.strftime("%H:%M:%S.%f")
-            t.exec_time = exec_time
-            t.save(update_fields=['start_time', 'exec_time'])
            
            
     def status_task(id):
